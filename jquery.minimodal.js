@@ -8,6 +8,8 @@
  *
  * How to use →
  *
+// Requires no HTML hooks, appends all elements needed and leaves them in the DOM
+// use onClose: function(){$.miniModal.kill();};
 // Use $.miniModal.close(); to close the modal externally
  $('#back').click(function(){
      $.miniModal({
@@ -44,6 +46,9 @@
     }
     $.miniModal.close = function () {
         $.miniModal.run.close();
+    };
+    $.miniModal.kill = function() {
+        $.miniModal.run.kill();
     };
     $.fn.miniModal = function (options) {
         return $.miniModal.run.init(this, options);
@@ -199,6 +204,22 @@
                 $box.css({'height' : settings.height});
             if (settings.width != null)
                 $box.css({'width' : settings.width});
+        },
+        
+        kill: function (options) {
+          var settings = $.extend(true, {}, $.miniModal.defaults, options);
+          settings.onClose.call(this);
+          if (settings.fade != false) {
+              $box.fadeOut(settings.fade);
+              $box.fadeOut(settings.fade);
+              setTimeout(function(){
+                 $box.remove();
+                 $overlay.remove(); 
+              }, settings.fade + 10);
+          } else {
+              $box.remove();
+              $overlay.remove();
+          }
         },
         
         close: function (options) {
