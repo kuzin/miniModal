@@ -1,9 +1,10 @@
 /*
- * jQuery miniModal Plugin v.5 (pre-release)
+ * jQuery miniModal Plugin v.6 (pre-release)
  * @author Mike Kuzin http://mikekuzin.com 
  * Kudos to Nate Good (http://nategood.com)
+ * Kudos to Pat Collins (http://www.burned.com/)
  * ---------------------------------------
- * Copyright (c) 2011 Mike Kuzin
+ * Copyright (c) 2011 Mike Kuzin & Peeps
  * ---------------------------------------
  *
  * How to use →
@@ -28,8 +29,15 @@
          overlayId      : 'overlay',        // string (overlay's id)
          modalId        : 'modal_base',     // string (modal's id)
          closeId        : 'modal_close',    // string (close button's id)
-         onOpen         : function(){},     // Callback (onOpen Callback)
-         onClose        : function(){},     // Callback (onClose Callback)
+         onOpen         : function(){},     // Callback
+         onLoad         : function(){},     // Callback
+         onClose        : function(){},     // Callback
+         onOpen         : function(){},     // Callback
+         onCreate       : function(){},     // Callback
+         onDisplay      : function(){},     // Callback
+         onResize       : function(){},     // Callback
+         onKill         : function(){},     // Callback
+         beforeClose    : function(){},     // Callback
          style          : 'modal',          // string (sets class for styling)
      });
  });
@@ -37,23 +45,34 @@
  */
 
 (function($) {
-            
-    $.miniModal = function (data, options) {
-        return $.miniModal.run.init(data,options);
+    $.miniModal = function(data, options) {
+        return $.miniModal.run.init(data, options);
     };
-    $.miniModal.init = function () {
-        $.miniModal.run.init();
-    }
-    $.miniModal.close = function () {
-        $.miniModal.run.close();
+    $.miniModal.init = function(data, options) {
+        $.miniModal.run.init(data, options);
     };
-    $.miniModal.kill = function() {
-        $.miniModal.run.kill();
+    $.miniModal.create = function(data, options) {
+        $.miniModal.run.create(data, options);
     };
-    $.fn.miniModal = function (options) {
+    $.miniModal.load = function(data, options) {
+        $.miniModal.run.load(data, options);
+    };
+    $.miniModal.display = function(data, options) {
+        $.miniModal.run.display(data, options);
+    };
+    $.miniModal.resize = function(data, options) {
+        $.miniModal.run.resizer(data, options);
+    };
+    $.miniModal.close = function(data, options) {
+        $.miniModal.run.close(data, options);
+    };
+    $.miniModal.kill = function(data, options) {
+        $.miniModal.run.kill(data, options);
+    };
+    $.fn.miniModal = function(options) {
         return $.miniModal.run.init(this, options);
     };
-    
+    // Defaults
     $.miniModal.defaults = {
         load: '',
         appendTo: 'body',
@@ -71,173 +90,190 @@
         overlayId: 'overlay',
         modalId: 'modal_base',
         closeId: 'modal_close',
-        onOpen: function(){},
-        onClose: function(){},
-        style: 'modal',
+        onOpen: function() {},
+        onCreate: function() {},
+        onLoad: function() {},
+        onDisplay: function() {},
+        onClose: function() {},
+        onResize: function() {},
+        onKill: function() {},
+        beforeClose: function() {},
+        style: 'modal'
         //customCss: {},
     };
-    
     // Object Generator
-    var $div = function (id, cssText) {
+    var $div = function(id, cssText) {
         var div = document.createElement('div');
-        if (id) {div.id = id}
+        if (id) div.id = id;
         return $(div);
-    }
-    
+    };
     // Cached jQuery Object Variables
-    var $overlay, $box, $wrap, $content, $loaded, $modal, $window;
-    
+    var $overlay, $box, $wrap, $content, $loaded, $modal, $window, $close, create, wrapper;
+    var settings = $.miniModal.defaults;
     $.miniModal.run = {
-        
-        init: function (options) {
+        // Init Script
+        init: function(options) {
+            // Settings 
+            settings = $.extend(true, {},
+            $.miniModal.defaults, options);
+            // console.log(settings, options);
             
-            // Settings / Options
-            var settings = $.extend(true, {}, $.miniModal.defaults, options),
-                wrapper = settings.appendTo;
-                
-            if (wrapper != 'body') {
-                var wrapper = '#' + settings.appendTo;
-            }
-            
-            // onOpen Callback
             settings.onOpen.call();
-            
-            // Load Content
-            var loader = function() {
-                if (settings.style == null) {
-                    $box.html(settings.load);
-                } else {
-                    $box.html(settings.load)
-                        .append($close)
-                        .wrapInner('<span />')
-                        .wrapInner('<div class="' + 
-                            settings.style +'" />');
-                    if (settings.absolute == true) 
-                        $box.css({'height' : '100%', 'width' : '100%'});
-                }
-            }
-            
-            // Create DOM
-            var create = function () {
-                $window     = $(window);
-                $overlay    = $div(settings.overlayId).hide();
-                $box        = $div(settings.modalId); 
-                $close      = $div(settings.closeId);
-                $(wrapper).prepend($box.append($close), $overlay);
-                loader();
-            }
-            
-            var display = function() {
-                if (settings.fade != 0) {
-                    $box.fadeIn(settings.fade);
-                    $overlay.fadeIn(settings.fade);
-                    loader();
-                } else {
-                    $box.show();
-                    $overlay.show();
-                    if (settings.close != false) 
-                        $close.show();
-                    loader();
-                }
-            }
-            
-            if ($('#' + settings.modalId).length == 0) {
-                create();
-            } else {
-                display();
-            }
-            
-            if (settings.modal == true)
-                $box.fadeIn(settings.fade);
-            if (settings.overlay == true)
-                $overlay.fadeIn(settings.fade);
-            if (settings.overlay == false)
-                $overlay.css({'opacity':0}).show();
-            if (settings.close == true)
-                $close.fadeIn(settings.fade);
-        
-            // Sizing
-            if (settings.modalHeight != null)
-                $box.css({'height' : settings.modalHeight});
-            if (settings.modalWidth != null)
-                $box.css({'width' : settings.modalWidth});
-            
-            if (settings.position != false) {
-                var w = ($box.width()) / 2,
-                    h = ($box.height()) / 2;
-                $box.css({
-                    'top' : '50%',
-                    'left' : '50%',
-                    'marginLeft': -w,
-                    'marginTop' : -h
-                });
-            }
-            
-            // Closing events
-            
+            $.miniModal.run.display();
+            // Close events
             if (settings.overlayClose == true) {
-                $overlay.click(function(){
+                $overlay.click(function() {
+                    $.miniModal.close();
+                });
+            };
+            if ($close) {
+                $close.click(function() {
+                    settings.beforeClose.call();
                     $.miniModal.close();
                 });
             }
-            $close.click(function(){
-                $.miniModal.close();
-            });
-            
             $(document).keydown(function(e) {
-                if (e.keyCode == 27 && settings.close == true && settings.escClose == true) { 
+                var loading = $('#loading').is(':visible');
+                // alert(e.keyCode);
+                // alert(settings.close);
+                // alert(settings.escClose);
+                // alert(loading);
+                
+                // alert("+" + e.keyCode + "+")
+                // alert(e.keyCode == 27) 
+                // alert(settings.close == true);
+                // alert(settings.escClose == true);
+                // alert(loading != true);
+                // alert(e.keyCode == 27 && settings.close == true && settings.escClose == true && loading != true);
+                if (e.keyCode == 27 && settings.close == true && settings.escClose == true && loading != true) {
+                    settings.beforeClose.call();
                     e.preventDefault();
                     $.miniModal.close();
                 };
             });
+        },
+        // decide what to display
+        display: function() {
+            settings.onDisplay.call();
+            if ($('#overlay').length == 0) {
+                $.miniModal.run.create();
+            } else {
+                $.miniModal.run.load();
+            };
+        },
+        // Create DOM 
+        create: function() {
+            settings.onCreate.call();
+            // Check container
+            wrapper = settings.appendTo;
+            if (wrapper != 'body') {
+                wrapper = '#' + settings.appendTo;
+            }
+            $window = $(window);
+            $overlay = $div(settings.overlayId).hide();
+            $box = $div(settings.modalId);
+            $close = $div(settings.closeId);
+            $(wrapper).prepend($box.append($close), $overlay);
+            $.miniModal.run.load();
+        },
+        // Load Content
+        load: function() {
+            // Add style to modal
             
-            $(document).bind('keydown', function(e) {
-                if ((settings.escClose && settings.close) && e.keyCode === 27) {
-                    
+            // $box.clearstyles
+            $box.removeAttr('style');
+            if (settings.style == null) {
+                $box.html(settings.load);
+            } else {
+                $box.html(settings.load).append($close).wrapInner('<span />')
+                    .wrapInner('<div class="' + settings.style + '" />');
+            };
+            if (settings.height != null) $box.css({
+                'height': settings.height
+            });
+            if (settings.width != null) $box.css({
+                'width': settings.width
+            });
+            if (settings.fade != 0) {
+                if (settings.modal == true) $box.fadeIn(settings.fade);
+                $overlay.fadeIn(settings.fade);
+                if ($close) {
+                    if (settings.close != true) {
+                        $close.hide();
+                    } else {
+                        $close.show();
+                    }
                 }
-            })
+            } else {
+                $box.show();
+                $overlay.show();
+                if ($close) {
+                    if (settings.close != true) {
+                        $close.hide();
+                    } else {
+                        $close.show();
+                    };
+                };
+            };
+            $.miniModal.run.resizer();
+            settings.onLoad.call();
         },
-        
-        resize: function () {
-            // Sizing
-            if (settings.height != null)
-                $box.css({'height' : settings.height});
-            if (settings.width != null)
-                $box.css({'width' : settings.width});
+        resizer: function() {
+            settings.onResize.call();
+            // Absolute positioning with margin
+            var w, h;
+            if (settings.position == true) {
+                w = ($box.width()) / 2;
+                if ($close) {
+                    h = (($box.height()) / 2) + 25;
+                } else {
+                    h = ($box.height()) / 2;
+                };
+                $box.css({
+                    'top': '50%',
+                    'left': '50%',
+                    'marginLeft': -w,
+                    'marginTop': -h
+                });
+            }
+            // Absolute positioning @ 100%
+            if (settings.absolute == true) {
+                $box.css({
+                    'height': '100%',
+                    'width': '100%'
+                });
+            };
         },
-        
-        kill: function (options) {
-          var settings = $.extend(true, {}, $.miniModal.defaults, options);
-          settings.onClose.call(this);
-          if (settings.fade != false) {
-              $box.fadeOut(settings.fade);
-              $box.fadeOut(settings.fade);
-              setTimeout(function(){
-                 $box.remove();
-                 $overlay.remove(); 
-              }, settings.fade + 10);
-          } else {
-              $box.remove();
-              $overlay.remove();
-          }
-        },
-        
-        close: function (options) {
-            var settings = $.extend(true, {}, $.miniModal.defaults, options);
-            settings.onClose.call(this);
+        close: function() {
+            settings.onClose.call();
+            // Hide content && leave in DOM
             if (settings.fade != false) {
                 $box.fadeOut(settings.fade);
                 $overlay.fadeOut(settings.fade);
+                if ($close) $close.fadeOut(settings.fade);
             } else {
                 $box.hide();
                 $overlay.hide();
+                if ($close) $close.hide();
             }
+        },
+        kill: function() {
+            settings.onKill.call();
+            //Hide content && remove from DOM
+            if (settings.fade != false) {
+                $box.fadeOut(settings.fade);
+                $overlay.fadeOut(settings.fade);
+                setTimeout(function() {
+                    $box.remove();
+                    $overlay.remove();
+                    if ($close) $close.remove();
+                },
+                settings.fade + 10);
+            } else {
+                $box.remove();
+                $overlay.remove();
+                if ($close) $close.remove();
+            };
         }
-    }
-    
-    function dbg(obj) {
-        if (window.console && window.console.log)
-            window.console.log(obj);
-    }    
-    
+    };
 })(jQuery);
