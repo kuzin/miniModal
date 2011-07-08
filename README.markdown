@@ -1,11 +1,7 @@
 How to use
 ==============================================================================
 
-Requires no HTML hooks, appends all elements needed and leaves them in the DOM
-
-use onClose: `function(){$.miniModal.kill()};`
-
-Use `$.miniModal.close();` to close the modal externally
+Requires no HTML hooks, appends all elements needed and leaves them in the DOM for further use.
 
     $('#back').click(function(){
         $.miniModal({
@@ -37,3 +33,6 @@ Use `$.miniModal.close();` to close the modal externally
             style          : 'modal',          // string (sets class for styling)
         });
     });
+
+
+More documentation, themes & examples coming shortly.
