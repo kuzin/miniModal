@@ -16,6 +16,7 @@
      $.miniModal({
          load           : '',               // string or jQuery Object
          appendTo       : 'body',           // string
+         closeTxt       : '[close]'         // string
          fade           : 0,                // int
          height         : null,             // int or null
          width          : null,             // int or null
@@ -76,6 +77,7 @@
     $.miniModal.defaults = {
         load: '',
         appendTo: 'body',
+        closeTxt: '[close]',
         focus: true,
         fade: 0,
         height: null,
@@ -108,7 +110,7 @@
         return $(div);
     };
     // Cached jQuery Object Variables
-    var $overlay, $box, $wrap, $content, $loaded, $modal, $window, $close, create, wrapper;
+    var $overlay, $box, $wrap, $content, $loaded, $modal, $window, $close, create, wrapper, overlay;
     var settings = $.miniModal.defaults;
     $.miniModal.run = {
         // Init Script
@@ -171,6 +173,8 @@
             }
             $window = $(window);
             $overlay = $div(settings.overlayId).hide();
+            if (settings.overlay != false)
+                $overlay.css('opacity', 0);
             $box = $div(settings.modalId);
             $close = $div(settings.closeId);
             $(wrapper).prepend($box.append($close), $overlay);
@@ -184,9 +188,11 @@
             $box.removeAttr('style');
             if (settings.style == null) {
                 $box.html(settings.load);
+                $close.html(settings.closeTxt);
             } else {
                 $box.html(settings.load).append($close).wrapInner('<span />')
                     .wrapInner('<div class="' + settings.style + '" />');
+                $close.html(settings.closeTxt);
             };
             if (settings.height != null) $box.css({
                 'height': settings.height
@@ -195,8 +201,9 @@
                 'width': settings.width
             });
             if (settings.fade != 0) {
+                overlay = (settings.overlay != false)  
+                    ? $overlay.fadeIn(settings.fade) : $overlay.show().css({'opacity':0});    
                 if (settings.modal == true) $box.fadeIn(settings.fade);
-                $overlay.fadeIn(settings.fade);
                 if ($close) {
                     if (settings.close != true) {
                         $close.hide();
@@ -205,7 +212,9 @@
                     }
                 }
             } else {
-                $box.show();
+                overlay = (settings.overlay != false)  
+                    ? $overlay.show() : $overlay.show().css({'opacity':0});
+                $box.show();                
                 $overlay.show();
                 if ($close) {
                     if (settings.close != true) {
