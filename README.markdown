@@ -1,9 +1,12 @@
-
-*How to use →*
+How to use
+==============================================================================
 
 Requires no HTML hooks, appends all elements needed and leaves them in the DOM
-use onClose: function(){$.miniModal.kill();};
-Use $.miniModal.close(); to close the modal externally
+
+use onClose: `function(){$.miniModal.kill()};`
+
+Use `$.miniModal.close();` to close the modal externally
+
     $('#back').click(function(){
         $.miniModal({
             load           : '',               // string or jQuery Object
