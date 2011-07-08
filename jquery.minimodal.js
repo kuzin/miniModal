@@ -162,16 +162,16 @@
             }
             $window = $(window);
             $overlay = $div(settings.overlayId).hide();
-            if (settings.overlay != false)
+            if (settings.overlay == false)
                 $overlay.css('opacity', 0);
             $box = $div(settings.modalId);
             $close = $div(settings.closeId);
             $(wrapper).prepend($box.append($close), $overlay);
             $.miniModal.run.load();
+            $.miniModal.run.resizer();
         },
         // Load Content
         load: function() {
-            // Add style to modal
             
             // $box.clearstyles
             $box.removeAttr('style');
@@ -190,8 +190,11 @@
                 'width': settings.width
             });
             if (settings.fade != 0) {
-                overlay = (settings.overlay != false)  
-                    ? $overlay.fadeIn(settings.fade) : $overlay.show().css({'opacity':0});    
+                if (settings.overlay != false) { 
+                    $overlay.fadeIn(settings.fade);
+                } else {
+                    $overlay.show().css({'opacity':0}); 
+                };
                 if (settings.modal == true) $box.fadeIn(settings.fade);
                 if ($close) {
                     if (settings.close != true) {
@@ -201,8 +204,11 @@
                     }
                 }
             } else {
-                overlay = (settings.overlay != false)  
-                    ? $overlay.show() : $overlay.show().css({'opacity':0});
+                if (settings.overlay != false)  {
+                    $overlay.show();
+                } else {
+                    $overlay.show().css({'opacity':0});
+                }
                 $box.show();                
                 $overlay.show();
                 if ($close) {
@@ -218,7 +224,6 @@
         },
         resizer: function() {
             settings.onResize.call();
-            // Absolute positioning with margin
             var w, h;
             if (settings.position == true) {
                 w = ($box.width()) / 2;
@@ -234,7 +239,6 @@
                     'marginTop': -h
                 });
             }
-            // Absolute positioning @ 100%
             if (settings.absolute == true) {
                 $box.css({
                     'height': '100%',
@@ -244,7 +248,6 @@
         },
         close: function() {
             settings.onClose.call();
-            // Hide content && leave in DOM
             if (settings.fade != false) {
                 $box.fadeOut(settings.fade);
                 $overlay.fadeOut(settings.fade);
@@ -257,7 +260,6 @@
         },
         kill: function() {
             settings.onKill.call();
-            //Hide content && remove from DOM
             if (settings.fade != false) {
                 $box.fadeOut(settings.fade);
                 $overlay.fadeOut(settings.fade);
