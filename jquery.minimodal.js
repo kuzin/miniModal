@@ -136,17 +136,6 @@
             }
             $(document).keydown(function(e) {
                 var loading = $('#loading').is(':visible');
-                // alert(e.keyCode);
-                // alert(settings.close);
-                // alert(settings.escClose);
-                // alert(loading);
-                
-                // alert("+" + e.keyCode + "+")
-                // alert(e.keyCode == 27) 
-                // alert(settings.close == true);
-                // alert(settings.escClose == true);
-                // alert(loading != true);
-                // alert(e.keyCode == 27 && settings.close == true && settings.escClose == true && loading != true);
                 if (e.keyCode == 27 && settings.close == true && settings.escClose == true && loading != true) {
                     settings.beforeClose.call();
                     e.preventDefault();
