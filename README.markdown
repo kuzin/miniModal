@@ -7,7 +7,7 @@ Requires no HTML hooks, appends all elements needed and leaves them in the DOM f
         $.miniModal({
             load           : '',               // string or jQuery Object
             appendTo       : 'body',           // string
-            closeTxt       : '[close]'         // string
+            closeTxt       : '[close]',         // string
             fade           : 0,                // int
             height         : null,             // int or null
             width          : null,             // int or null
@@ -15,7 +15,7 @@ Requires no HTML hooks, appends all elements needed and leaves them in the DOM f
             escClose       : true,             // bool
             overlayClose   : true,             // bool
             position       : true,             // bool (sets auto positioning)
-            absolute       : false             // bool (allows objects to be positioned absolutely to container [@ 100%])
+            absolute       : false,             // bool (allows objects to be positioned absolutely to container [@ 100%])
             modal          : true,             // bool (displays modal)
             overlay        : true,             // bool (displays overlay)
             overlayId      : 'overlay',        // string (overlay's id)
